@@ -1,0 +1,60 @@
+services:
+  frontend-dev:
+    build:
+      context: bloglist-frontend
+      dockerfile: dev.Dockerfile
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8080
+      - REACT_APP_ENV=development
+    ports:
+      - "3000:3000"
+    networks:
+      - my_network
+    volumes:
+      - ./bloglist-frontend:/usr/src/app/
+
+
+  backend-dev:
+    depends_on:
+      - db
+    build:
+      context: bloglist-backend
+      dockerfile: dev.Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - REQUEST_ORIGIN=http://localhost:3000
+      - SECRET=Secret
+      - DATABASE_URL=mongodb+srv://fullstack:Vv3oxVAaSX5qlGv3@cluster0.ph36nzi.mongodb.net/test?retryWrites=true&w=majority
+      - SQL_DB_URL=postgres://postgres:example@db:5432/postgres
+    networks:
+      - my_network
+    volumes:
+      - ./bloglist-backend:/usr/src/app/
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - "5432:5432"
+    networks:
+      - my_network
+    volumes:
+      #      - ./postgres-data/:/var/lib/postgresql/data
+      - ./postgres/:/docker-entrypoint-initdb.d/
+
+#  adminer:
+#    image: adminer
+#    restart: always
+#    ports:
+#      - 8080:8080
+#    networks:
+#      - my_network
+
+networks:
+  my_network:
+    driver: bridge
