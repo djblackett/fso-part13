@@ -1,20 +1,22 @@
 services:
-  frontend:
-    build:
-      context: bloglist-frontend
-      dockerfile: Dockerfile
-    environment:
-      REACT_APP_BACKEND_URL: http://proxy/api
-#    ports:
-#        - ":4000"
-    networks:
-        - my_network
-    image: bloglist-frontend-prod
+#  frontend:
+#    build:
+#      context: bloglist-frontend
+#      dockerfile: Dockerfile
+#    environment:
+#      REACT_APP_BACKEND_URL: http://proxy/api
+##    ports:
+##        - ":4000"
+#    networks:
+#        - my_network
+#    image: bloglist-frontend-prod
 
 
   backend:
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     build:
       context: bloglist-backend
       dockerfile: Dockerfile
@@ -33,6 +35,9 @@ services:
 
   proxy:
     image: nginx
+    depends_on:
+      - backend
+#        condition: service_started
     hostname: proxy
     container_name: proxy
     tty: true
@@ -56,14 +61,19 @@ services:
     volumes:
 #      - ./postgres-data/:/var/lib/postgresql/data
       - ./postgres/:/docker-entrypoint-initdb.d/
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-    networks:
-      - my_network
+#  adminer:
+#    image: adminer
+#    restart: always
+#    ports:
+#      - 8080:8080
+#    networks:
+#      - my_network
 
 
 networks:
