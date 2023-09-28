@@ -6,7 +6,7 @@ const User = require("../models/user");
 const api = supertest.agent(app);
 require("jest-expect-message");
 const jwt = require("jsonwebtoken");
-const { SECRET } = require("../utils/config");
+const { SECRET } = require("../util/config");
 
 
 const initialBlogs = [

@@ -1,5 +1,5 @@
 const {Sequelize, QueryTypes} = require("sequelize");
-const logger = require("./utils/logger");
+const logger = require("./util/logger");
 
 const sequelize = new Sequelize(process.env.SQL_DB_URL);
 

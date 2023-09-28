@@ -1,51 +1,59 @@
-const blogsSqlRouter = require('express').Router();
-const { Blog }  = require("../models-sql/blog-sql");
+const blogsSqlRouter = require("express").Router();
+const Blog = require("../models/blog");
+const { User } = require("../models");
+
+const blogFinder = async (req, res, next) => {
+  req.blog = await Blog.findByPk(req.params.id, {
+  });
+  next();
+};
 
 blogsSqlRouter.get("/", async (request, response) => {
-    const blogs = await Blog.findAll();
-    response.json(blogs);
+  const blogs = await Blog.findAll({
+    attributes: { exclude: ["userId"] },
+    include: {
+      model: User,
+      attributes: ["name"]
+    }
+  });
+  response.json(blogs);
+});
+
+blogsSqlRouter.get("/:id", blogFinder, async (req, res) => {
+  if (req.blog) {
+    res.json(req.blog);
+  } else {
+    res.status(404).end();
+  }
 });
 
 blogsSqlRouter.post("/", async (request, response) => {
-
-    const body = request.body;
-    // const user = request.user;
-
-    const blogObj = {
-        title: body.title,
-        author: body.author,
-        url: body.url,
-        // user: user._id.toString()
-    };
-
-    // console.log(blogObj);
-    //
-    // console.log(typeof user.id);
-
-    try {
-        const blog = await Blog.create(request.body);
-        // const result = await blog.save();
-
-        // user.blogs = user.blogs.concat(result._id);
-        // await user.save();
-        // console.log(result);
-        response.status(201).json(blog);
-    } catch (error) {
-        return response.status(400).json({error})
-    }
-})
-
-
-blogsSqlRouter.delete("/:id", async (req, res) => {
-    try {
-        await Blog.destroy({
-            where: {
-                id: req.params.id
-            }
-        })
-    } catch (error) {
-        return res.status(404).json({error})
-    }
+  try {
+    const blog = await Blog.create(request.body);
+    response.status(201).json(blog);
+  } catch (error) {
+    return response.status(400).json({ error });
+  }
 });
 
-module.exports = { blogsSqlRouter }
+
+blogsSqlRouter.delete("/:id", blogFinder, async (req, res) => {
+  if (req.blog) {
+    await req.blog.destroy();
+  }
+  res.status(204).end();
+});
+
+
+blogsSqlRouter.put("/:id", blogFinder, async (req, res) => {
+  if (req.blog) {
+    req.blog.likes = req.blog.likes + 1;
+    await req.blog.save();
+    res.json({ likes: req.blog.likes });
+  } else {
+    const error = new Error("No blog with id " + req.params.id + " found");
+    return res.status(404).json({ error: error.message });
+  }
+});
+
+module.exports = blogsSqlRouter;

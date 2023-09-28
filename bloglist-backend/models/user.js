@@ -1,34 +1,34 @@
-const mongoose = require("mongoose");
+require("dotenv").config();
+const { Model, DataTypes, Sequelize } = require("sequelize");
+const sequelize = new Sequelize(process.env.SQL_DB_URL);
 
+class User extends Model {
+}
 
-const userSchema = new mongoose.Schema({
-  name:String,
-  username: { type: String,
-    required: true,
-    minLength: 3,
-    unique: true
+User.init({
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
   },
-  passwordHash: { type: String,
-    required: true,
+  username: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: false
   },
-  blogs: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Blog"
-    }
-  ]
-});
-
-userSchema.set("toJSON", {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-    delete returnedObject.passwordHash;
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false
   }
+}, {
+  sequelize,
+  underscored: true,
+  timestamps: true,
+  modelName: "user"
 });
-
-const User = mongoose.model("User", userSchema);
-
 
 module.exports = User;

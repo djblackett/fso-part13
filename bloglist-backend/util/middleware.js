@@ -24,7 +24,7 @@ const userExtractor = async (request, response, next) => {
 
   next();
 };
-
+//
 const requestLogger = (request, response, next) => {
   logger.info("Method:", request.method);
   logger.info("Path:  ", request.path);
@@ -48,6 +48,8 @@ const errorHandler = (error, request, response, next) => {
     return response.status(401).json({
       error: "invalid token"
     });
+  } else if (error.name === "SequelizeValidationError") {
+      return response.status(400).send({error: error.message})
   }
 
   next(error);
