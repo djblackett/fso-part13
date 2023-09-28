@@ -19,7 +19,7 @@ const userExtractor = async (request, response, next) => {
   if (!decodedToken.id) {
     return response.status(401).json({ error: "token missing or invalid" });
   }
-  request.user = await User.findById(decodedToken.id);
+  request.user = await User.findByPk(decodedToken.id);
 
 
   next();
@@ -49,7 +49,7 @@ const errorHandler = (error, request, response, next) => {
       error: "invalid token"
     });
   } else if (error.name === "SequelizeValidationError") {
-      return response.status(400).send({error: error.message})
+    return response.status(400).send({ error: error.message });
   }
 
   next(error);

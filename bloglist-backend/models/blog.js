@@ -14,7 +14,7 @@ Blog.init({
   author: { type: DataTypes.TEXT, allowNull: true },
   title: { type: DataTypes.TEXT, allowNull: false },
   url: { type: DataTypes.TEXT, allowNull: false },
-  likes: { type: DataTypes.INTEGER, default: 0 }
+  likes: { type: DataTypes.INTEGER, defaultValue: 0 }
 }, { sequelize, underscored: true, timestamps: false, modelName: "blog" });
 
 module.exports =  Blog;

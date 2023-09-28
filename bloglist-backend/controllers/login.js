@@ -1,36 +1,42 @@
-const jwt = require('jsonwebtoken')
-const router = require('express').Router()
+const jwt = require("jsonwebtoken");
+const router = require("express").Router();
 
-const {SECRET} = require('../util/config')
-const User = require('../models/user')
+const { SECRET } = require("../util/config");
+const User = require("../models/user");
+const bcrypt = require("bcrypt");
 
-router.post('/', async (request, response) => {
-    const body = request.body
+router.post("/", async (request, response) => {
+  const body = request.body;
 
-    const user = await User.findOne({
-        where: {
-            username: body.username
-        }
-    })
-
-    const passwordCorrect = body.password === 'secret'
-
-    if (!(user && passwordCorrect)) {
-        return response.status(401).json({
-            error: 'invalid username or password'
-        })
+  const user = await User.findOne({
+    where: {
+      username: body.username
     }
+  });
 
-    const userForToken = {
-        username: user.username,
-        id: user.id,
-    }
+  const saltRounds = 10;
+  const passwordHash = await bcrypt.hash(body.password, saltRounds);
+  const passwordCorrect = bcrypt.compare(body.password, user.password);
+  console.log("user.password:", user.password);
+  console.log("hash:", passwordHash);
+  console.log("passwordCorrect:", passwordCorrect);
 
-    const token = jwt.sign(userForToken, SECRET)
+  if (!(user && passwordCorrect)) {
+    return response.status(401).json({
+      error: "invalid username or password"
+    });
+  }
 
-    response
-        .status(200)
-        .send({token, username: user.username, name: user.name})
-})
+  const userForToken = {
+    username: user.username,
+    id: user.id,
+  };
 
-module.exports = router
+  const token = jwt.sign(userForToken, SECRET);
+
+  response
+    .status(200)
+    .send({ token, username: user.username, name: user.name });
+});
+
+module.exports = router;
