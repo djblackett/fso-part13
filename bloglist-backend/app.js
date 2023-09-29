@@ -12,6 +12,7 @@ const { Sequelize, QueryTypes } = require("sequelize");
 const { errorHandler, unknownEndpoint, requestLogger, tokenExtractor, userExtractor } = require("./util/middleware");
 const { authorsRouter } = require("./controllers/authors");
 const { readingListsRouter } = require("./controllers/readingLists");
+const { logoutRouter } = require("./controllers/logout");
 
 const sequelize = new Sequelize(process.env.SQL_DB_URL);
 
@@ -20,13 +21,18 @@ app.use(cors());
 
 app.use(express.json());
 app.use(requestLogger);
+
+// Should I move users and login to before tokenExtactor?
+app.use("/users", usersRouter);
+app.use("/login", loginRouter);
 app.use(tokenExtractor);
 // app.use("/blogs", middleware.userExtractor, blogsRouter);
 app.use("/blogs", userExtractor, blogsSqlRouter);
-app.use("/users", usersRouter);
-app.use("/login", loginRouter);
+
+
 app.use("/authors", authorsRouter);
 app.use("/readinglists", userExtractor, readingListsRouter);
+app.use("/logout", userExtractor, logoutRouter);
 
 // if (config.NODE_ENV === "test") {
 //     const testingRouter = require("./controllers/testing");

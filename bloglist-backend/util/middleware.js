@@ -1,6 +1,7 @@
 const logger = require("./logger");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const { Token } = require("../models/token");
 const { SECRET } = require("./config");
 
 const tokenExtractor = (request, response, next) => {
@@ -13,14 +14,28 @@ const tokenExtractor = (request, response, next) => {
 };
 
 const userExtractor = async (request, response, next) => {
-  const decodedToken = jwt.verify(request.token, SECRET);
+  const decodedTokenUser = jwt.verify(request.token, SECRET);
 
-  // console.log("Inside userExtractor");
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: "token missing or invalid" });
+  const dbToken = await Token.findOne({
+    attributes: ["id", "userId"],
+    where: {
+      token: request.token,
+    }
+  });
+
+  const isTokenValid = !!dbToken;
+
+  if (!decodedTokenUser.id || !isTokenValid) {
+    response.status(401).json({ error: "token missing or invalid" });
+    return;
   }
-  request.user = await User.findByPk(decodedToken.id);
 
+  request.user = await User.findByPk(decodedTokenUser.id);
+
+  if (request.user.disabled) {
+    response.status(403).json({ error: "user account disabled" });
+    return;
+  }
 
   next();
 };

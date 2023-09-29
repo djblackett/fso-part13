@@ -2,40 +2,35 @@ require("dotenv").config();
 const { Model, DataTypes, Sequelize } = require("sequelize");
 const sequelize = new Sequelize(process.env.SQL_DB_URL);
 
-class User extends Model {
+class Token extends Model {
 }
 
-User.init({
+Token.init({
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  username: {
-    type: DataTypes.STRING,
-    unique: true,
+  userId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    validate: {
-      isEmail: true
-    }
+    references: { model: "users", key: "id" },
   },
-  name: {
+  token: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    unique: true
   },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: new Date()
   },
-  disabled: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  }
 }, {
   sequelize,
   underscored: true,
   timestamps: true,
-  modelName: "user"
+  updatedAt: false,
+  modelName: "token"
 });
 
-module.exports = User;
+module.exports = { Token };
