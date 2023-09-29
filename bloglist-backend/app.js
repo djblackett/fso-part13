@@ -10,6 +10,8 @@ const loginRouter = require("./controllers/login");
 const { NODE_ENV } = require("./util/config");
 const { Sequelize, QueryTypes } = require("sequelize");
 const { errorHandler, unknownEndpoint, requestLogger, tokenExtractor, userExtractor } = require("./util/middleware");
+const { authorsRouter } = require("./controllers/authors");
+const { readingListsRouter } = require("./controllers/readingLists");
 
 const sequelize = new Sequelize(process.env.SQL_DB_URL);
 
@@ -23,6 +25,8 @@ app.use(tokenExtractor);
 app.use("/blogs", userExtractor, blogsSqlRouter);
 app.use("/users", usersRouter);
 app.use("/login", loginRouter);
+app.use("/authors", authorsRouter);
+app.use("/readinglists", userExtractor, readingListsRouter);
 
 // if (config.NODE_ENV === "test") {
 //     const testingRouter = require("./controllers/testing");

@@ -14,12 +14,8 @@ router.post("/", async (request, response) => {
     }
   });
 
-  const saltRounds = 10;
-  const passwordHash = await bcrypt.hash(body.password, saltRounds);
   const passwordCorrect = bcrypt.compare(body.password, user.password);
-  console.log("user.password:", user.password);
-  console.log("hash:", passwordHash);
-  console.log("passwordCorrect:", passwordCorrect);
+  await console.log("passwordCorrect:", passwordCorrect);
 
   if (!(user && passwordCorrect)) {
     return response.status(401).json({

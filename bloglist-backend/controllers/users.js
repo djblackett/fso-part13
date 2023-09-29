@@ -34,7 +34,23 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const user = await User.findByPk(req.params.id);
+  const user = await User.findByPk(req.params.id, {
+    attributes: { exclude: ["password", "createdAt", "updatedAt", "blogs", "id"] },
+    include: [
+    //     {
+    //   model: Blog,
+    //   attributes: { exclude: ["userId"] }
+    // },
+      {
+        model: Blog,
+        as: "readings",
+        attributes: { exclude: ["userId"] },
+        through: {
+          attributes: ["read", "id"]
+        }
+      }]
+  });
+
   if (user) {
     res.json(user);
   } else {
