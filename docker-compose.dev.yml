@@ -1,24 +1,9 @@
 services:
-  frontend-dev:
-    build:
-      context: bloglist-frontend
-      dockerfile: dev.Dockerfile
-    environment:
-      - REACT_APP_BACKEND_URL=http://localhost:8080
-      - REACT_APP_ENV=development
-    ports:
-      - "3000:3000"
-    networks:
-      - my_network
-    volumes:
-      - ./bloglist-frontend:/usr/src/app/
-
 
   backend-dev:
     depends_on:
       db:
         condition: service_healthy
-
     build:
       context: bloglist-backend
       dockerfile: dev.Dockerfile
@@ -27,9 +12,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=8080
-      - REQUEST_ORIGIN=http://localhost:3000
       - SECRET=Secret
-      - DATABASE_URL=mongodb+srv://fullstack:Vv3oxVAaSX5qlGv3@cluster0.ph36nzi.mongodb.net/test?retryWrites=true&w=majority
       - SQL_DB_URL=postgres://postgres:example@db:5432/postgres
     networks:
       - my_network
@@ -41,28 +24,19 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: example
+      PGUSER: postgres
+      POSTGRES_USER: postgres
     ports:
       - "5432:5432"
     networks:
       - my_network
     volumes:
-      #      - ./postgres-data/:/var/lib/postgresql/data
-      - ./postgres/:/docker-entrypoint-initdb.d/
+      - ./postgres-data/:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost" ]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-      start_interval: 5s
-
-#  adminer:
-#    image: adminer
-#    restart: always
-#    ports:
-#      - 8080:8080
-#    networks:
-#      - my_network
+      test: "pg_isready -U $$POSTGRES_USER"
+      interval: 3s
+      timeout: 5s
+      retries: 5
 
 networks:
   my_network:
