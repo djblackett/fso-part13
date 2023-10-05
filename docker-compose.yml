@@ -6,7 +6,6 @@ services:
         condition: service_healthy
         restart: true
     build:
-      context: bloglist-backend
       dockerfile: Dockerfile
     ports:
     - "8080:8080"
@@ -18,8 +17,8 @@ services:
       - SQL_DB_URL=postgres://postgres:example@db:5432/postgres
     networks:
       - my_network
-    volumes:
-      - ./bloglist-backend:/usr/src/app/
+#    volumes:
+#      - ./:/usr/src/app/
     command:
 
   db:

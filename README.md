@@ -1,12 +1,16 @@
-# Full Stack open CI/CD
+# Full Stack Open Relational Databases
 
-This repository is used for the CI/CD module of the Full stack open course
+This repository is used for the Relational Database module of the FullstackOpen course at U of Helsinki
 
-This is the bloglist projects from parts 4 and 5 of FullstackOpen refactored as a single full stack project with a CI/CD
-pipeline in GitHub Actions that deploys to fly.io
+This is an upgraded version of the blog server from earlier in the course. The earlier version used MongoDB,
+but the current version has been refactored to use PostgreSQL. Many more endpoints and more complex logic have also 
+been added. 
 
-The app is live at https://holy-cloud-7839.fly.dev/
-You can test the app with the following credentials:  
+###  Running the app
+The app can be run by starting the docker containers individually, or all at once with `docker compose up`
 
-username: test  
-password: test
+### Adding Example Data
+Add sample seeder data using the command `npx sequelize-cli db:seed:all`
+
+
+
